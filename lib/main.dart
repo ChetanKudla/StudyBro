@@ -8,6 +8,7 @@ import 'src/features/navigation/presentation/main_navigation_screen.dart';
 import 'src/core/theme/neo_brutalist_theme.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [
@@ -40,11 +41,42 @@ class MyApp extends StatelessWidget {
           bodyMedium: TextStyle(fontFamily: 'Courier', color: NeoBrutalism.darkBlack),
         ),
       ),
-      initialRoute: '/onboarding',
+      home: const AuthWrapper(),
       routes: {
         '/onboarding': (context) => const OnboardingScreen(),
         '/login': (context) => const LoginScreen(),
         '/main': (context) => const MainNavigationScreen(),
+      },
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthState>(
+      builder: (context, authState, child) {
+        if (!authState.isInitialized) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(
+                color: NeoBrutalism.primaryPurple,
+              ),
+            ),
+          );
+        }
+
+        if (!authState.isOnboardingCompleted) {
+          return const OnboardingScreen();
+        }
+
+        if (!authState.isLoggedIn) {
+          return const LoginScreen();
+        }
+
+        return const MainNavigationScreen();
       },
     );
   }

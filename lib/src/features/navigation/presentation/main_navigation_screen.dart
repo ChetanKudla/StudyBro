@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/neo_brutalist_theme.dart';
+import '../../auth/presentation/auth_state.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../notes/presentation/upload_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
@@ -12,8 +14,6 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _selectedTabIndex = 0;
-
   final List<Widget> _tabs = [
     const HomeScreen(),
     const UploadScreen(),
@@ -22,9 +22,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = Provider.of<AuthState>(context);
+    final selectedTabIndex = authState.selectedTab;
+
     return Scaffold(
       backgroundColor: NeoBrutalism.background,
-      body: _tabs[_selectedTabIndex],
+      body: _tabs[selectedTabIndex],
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
         decoration: const BoxDecoration(
@@ -45,6 +48,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 icon: Icons.home_filled,
                 label: 'HOME',
                 color: NeoBrutalism.accentYellow,
+                isSelected: selectedTabIndex == 0,
               ),
               _buildBottomNavItem(
                 index: 1,
@@ -52,12 +56,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 label: 'UPLOAD',
                 color: NeoBrutalism.primaryPurple,
                 labelColor: NeoBrutalism.pureWhite,
+                isSelected: selectedTabIndex == 1,
               ),
               _buildBottomNavItem(
                 index: 2,
                 icon: Icons.person,
                 label: 'PROFILE',
                 color: NeoBrutalism.accentMint,
+                isSelected: selectedTabIndex == 2,
               ),
             ],
           ),
@@ -71,15 +77,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     required IconData icon,
     required String label,
     required Color color,
+    required bool isSelected,
     Color labelColor = NeoBrutalism.darkBlack,
   }) {
-    final isSelected = _selectedTabIndex == index;
-    
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedTabIndex = index;
-        });
+        Provider.of<AuthState>(context, listen: false).setSelectedTab(index);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
